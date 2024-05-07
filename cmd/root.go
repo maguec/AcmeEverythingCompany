@@ -37,6 +37,8 @@ var debug bool
 var Config = utils.AcmeConfig{
 	CustomerCount: 2000,
 	ProductCount:  10000,
+	OrderCount:    100000,
+	MaxClients:    20,
 }
 
 // rootCmd represents the base command when called without any subcommands

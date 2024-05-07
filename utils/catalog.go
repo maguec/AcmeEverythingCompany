@@ -21,6 +21,11 @@ type Product struct {
 
 type Catalog []Product
 
+type CatalogOrder struct {
+	Id        uuid.UUID
+	UnitPrice float64
+}
+
 func (c Catalog) Generate(l int) Catalog {
 	f := gofakeit.New(0)
 	var r Catalog
@@ -35,12 +40,12 @@ func (c Catalog) Generate(l int) Catalog {
 	return r
 }
 
-func (c Catalog) IDs(db *gorm.DB) []uuid.UUID {
-	var r []uuid.UUID
+func (c Catalog) IDs(db *gorm.DB) []CatalogOrder {
+	var r []CatalogOrder
 	var catalog Catalog
 	db.Clauses(hints.CommentAfter("where", "type='products',func='IDs'")).Find(&catalog)
 	for _, c := range catalog {
-		r = append(r, c.Id)
+		r = append(r, CatalogOrder{Id: c.Id, UnitPrice: c.UnitPrice})
 	}
 	return r
 }
