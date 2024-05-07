@@ -35,10 +35,12 @@ func (c Catalog) Generate(l int) Catalog {
 	return r
 }
 
-func (c Catalog) IDs() []uuid.UUID {
+func (c Catalog) IDs(db *gorm.DB) []uuid.UUID {
 	var r []uuid.UUID
-	for i := 0; i < len(c); i++ {
-		r = append(r, c[i].Id)
+	var catalog Catalog
+	db.Clauses(hints.CommentAfter("where", "type='products',func='IDs'")).Find(&catalog)
+	for _, c := range catalog {
+		r = append(r, c.Id)
 	}
 	return r
 }

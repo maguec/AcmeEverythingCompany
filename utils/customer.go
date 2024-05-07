@@ -33,10 +33,12 @@ func (c Customers) Generate(l int) Customers {
 	return r
 }
 
-func (c Customers) IDs() []uuid.UUID {
+func (c Customers) IDs(db *gorm.DB) []uuid.UUID {
 	var r []uuid.UUID
-	for i := 0; i < len(c); i++ {
-		r = append(r, c[i].Id)
+	var customers []Customer
+	db.Clauses(hints.CommentAfter("where", "type='customers',func='IDs'")).Find(&customers)
+	for _, c := range customers {
+		r = append(r, c.Id)
 	}
 	return r
 }
