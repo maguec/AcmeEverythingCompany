@@ -12,7 +12,7 @@ func GetDb(cfg *AcmeConfig) (*gorm.DB, error) {
 	var db *gorm.DB
 
 	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
+		"host=%s user=%s password=%s dbname=%s port=%d", 
 		cfg.Host,
 		cfg.Username,
 		cfg.Password,
