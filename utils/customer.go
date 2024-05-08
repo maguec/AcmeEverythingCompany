@@ -36,7 +36,9 @@ func (c Customers) Generate(l int) Customers {
 func (c Customers) IDs(db *gorm.DB) []uuid.UUID {
 	var r []uuid.UUID
 	var customers []Customer
-	db.Clauses(hints.CommentAfter("where", "controller='customers',action='IDs',application='acme'")).Find(&customers)
+	db.Clauses(
+		hints.CommentAfter("select", "controller='customers',action='IDs',application='acme'"),
+	).Find(&customers)
 	for _, c := range customers {
 		r = append(r, c.Id)
 	}
@@ -50,7 +52,12 @@ func (c Customers) DbLoad(db *gorm.DB) error {
 	for i := 0; i < len(c); i++ {
 		data = append(data, c[i])
 		if len(data) == 100 {
-			err = db.Clauses(hints.CommentAfter("returning", "controller='catalog',action='DbLoad',application='acme'")).Clauses(clause.OnConflict{UpdateAll: true}).Create(&data).Error
+			err = db.Clauses(
+				hints.CommentAfter(
+					"insert", "controller='catalog',action='DbLoad',application='acme'"),
+			).Clauses(
+				clause.OnConflict{UpdateAll: true},
+			).Create(&data).Error
 			if err != nil {
 				return err
 			}
@@ -58,7 +65,11 @@ func (c Customers) DbLoad(db *gorm.DB) error {
 		}
 	}
 	if len(data) > 0 {
-		err = db.Clauses(hints.CommentAfter("returning", "controller='catalog',action='DbLoad',application='acme'")).Clauses(clause.OnConflict{UpdateAll: true}).Create(&data).Error
+		err = db.Clauses(
+			hints.CommentAfter("insert", "controller='catalog',action='DbLoad',application='acme'"),
+		).Clauses(
+			clause.OnConflict{UpdateAll: true},
+		).Create(&data).Error
 		if err != nil {
 			return err
 		}

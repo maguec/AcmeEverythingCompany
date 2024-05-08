@@ -46,8 +46,12 @@ func writeOrders(
 				fmt.Printf("Error with thread %d\n", w)
 			}
 			data = append(data, job)
-			if len(data) == 2 {
-				err = db.Clauses(hints.CommentAfter("returning", "type='order',func='DbLoad'")).Clauses(clause.OnConflict{UpdateAll: true}).Create(&data).Error
+			if len(data) == 100 {
+				err = db.Clauses(
+					hints.CommentAfter("insert", "controller='order',action='DbLoad',application='acme'"),
+				).Clauses(
+					clause.OnConflict{UpdateAll: true},
+				).Create(&data).Error
 				if err != nil {
 					return err
 				}
@@ -56,7 +60,11 @@ func writeOrders(
 
 		default:
 			if len(data) > 0 {
-				err = db.Clauses(hints.CommentAfter("returning", "type='order',func='DbLoad'")).Clauses(clause.OnConflict{UpdateAll: true}).Create(&data).Error
+				err = db.Clauses(
+					hints.CommentAfter("insert", "controller='order',action='DbLoad',application='acme'"),
+				).Clauses(
+					clause.OnConflict{UpdateAll: true},
+				).Create(&data).Error
 				if err != nil {
 					return err
 				}
@@ -75,7 +83,6 @@ func (o Orders) DbLoad(cfg AcmeConfig, orderCount, maxClients int) error {
 	}
 	customers := Customers{}
 	customerUUIDS := customers.IDs(db)
-	fmt.Printf("Length of customers: %d\n", len(customerUUIDS))
 	catalog := Catalog{}
 	productUUIDS := catalog.IDs(db)
 	orders := []Order{}
@@ -83,7 +90,7 @@ func (o Orders) DbLoad(cfg AcmeConfig, orderCount, maxClients int) error {
 		myuuid := uuid.New()
 		customerId := customerUUIDS[rand.Intn(len(customerUUIDS))]
 		for j := 0; j < rand.Intn(15)+1; j++ {
-			z := productUUIDS[rand.Intn(len(customerUUIDS))]
+			z := productUUIDS[rand.Intn(len(productUUIDS))]
 			units := rand.Intn(50) + 1
 			o_uuid := uuid.New()
 			ord := Order{

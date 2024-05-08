@@ -43,7 +43,9 @@ func (c Catalog) Generate(l int) Catalog {
 func (c Catalog) IDs(db *gorm.DB) []CatalogOrder {
 	var r []CatalogOrder
 	var catalog Catalog
-	db.Clauses(hints.CommentAfter("where", "type='products',func='IDs'")).Find(&catalog)
+	db.Clauses(
+		hints.CommentAfter("select", "controller='catalog',action='IDs',application='acme'"),
+	).Find(&catalog)
 	for _, c := range catalog {
 		r = append(r, CatalogOrder{Id: c.Id, UnitPrice: c.UnitPrice})
 	}
@@ -57,7 +59,11 @@ func (c Catalog) DbLoad(db *gorm.DB) error {
 	for i := 0; i < len(c); i++ {
 		data = append(data, c[i])
 		if len(data) == 100 {
-			err = db.Clauses(hints.CommentAfter("returning", "type='catalog',func='DbLoad'")).Clauses(clause.OnConflict{UpdateAll: true}).Create(&data).Error
+			err = db.Clauses(
+				hints.CommentAfter("insert", "controller='catalog',action='DbLoad',application='acme'"),
+			).Clauses(
+				clause.OnConflict{UpdateAll: true},
+			).Create(&data).Error
 			if err != nil {
 				return err
 			}
@@ -65,7 +71,11 @@ func (c Catalog) DbLoad(db *gorm.DB) error {
 		}
 	}
 	if len(data) > 0 {
-		err = db.Clauses(hints.CommentAfter("returning", "type='catalog',func='DbLoad'")).Clauses(clause.OnConflict{UpdateAll: true}).Create(&data).Error
+		err = db.Clauses(
+			hints.CommentAfter("insert", "controller='catalog',action='DbLoad',application='acme'"),
+		).Clauses(
+			clause.OnConflict{UpdateAll: true},
+		).Create(&data).Error
 		if err != nil {
 			return err
 		}
