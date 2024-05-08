@@ -8,6 +8,6 @@ type AcmeConfig struct {
 	DBName        string `yaml:"dbname"`
 	CustomerCount int    `yaml:"customer_count"`
 	ProductCount  int    `yaml:"product_count"`
-	OrderCount    int    `yaml:"product_count"`
-	MaxClients    int    `yaml:"product_count"`
+	OrderCount    int    `yaml:"order_count"`
+	MaxClients    int    `yaml:"client_count"`
 }
