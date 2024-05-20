@@ -33,14 +33,20 @@ func (c Customers) Generate(l int) Customers {
 	return r
 }
 
-func (c Customers) IDs(db *gorm.DB) []uuid.UUID {
+func (c Customers) IDs(db *gorm.DB, pluck bool) []uuid.UUID {
 	var r []uuid.UUID
 	var customers []Customer
-	db.Clauses(
-		hints.CommentAfter("select", "controller='customers',action='IDs',application='acme'"),
-	).Find(&customers)
-	for _, c := range customers {
-		r = append(r, c.Id)
+	if pluck {
+    db.Clauses(
+      hints.CommentAfter("select", "controller='customers',action='IDs-pluck',application='acme'"),
+    ).Model(&Customer{}).Pluck("Id", &r)
+	} else {
+		db.Clauses(
+			hints.CommentAfter("select", "controller='customers',action='IDs',application='acme'"),
+		).Find(&customers)
+		for _, c := range customers {
+			r = append(r, c.Id)
+		}
 	}
 	return r
 }

@@ -37,7 +37,6 @@ func writeOrders(
 	if err != nil {
 		return err
 	}
-	db.AutoMigrate(&Order{})
 	defer wg.Done()
 	for {
 		select {
@@ -78,11 +77,13 @@ func writeOrders(
 func (o Orders) DbLoad(cfg AcmeConfig, orderCount, maxClients int) error {
 	var err error
 	db, err := GetDb(&cfg)
+  // Create the table if it doesn't exist
+  err = db.Migrator().AutoMigrate(&Order{})
 	if err != nil {
 		log.Fatal(err)
 	}
 	customers := Customers{}
-	customerUUIDS := customers.IDs(db)
+	customerUUIDS := customers.IDs(db, false)
 	catalog := Catalog{}
 	productUUIDS := catalog.IDs(db)
 	orders := []Order{}
