@@ -2,7 +2,6 @@ package utils
 
 import (
 	"log"
-
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -18,6 +17,12 @@ type Product struct {
 	Name        string    `fake:"{productname}"`
 	Description string    `fake:"{productdescription}"`
 	Category    string    `fake:"{productcategory}"`
+}
+
+// This is a slim version of the product to improve performance
+type SlimProduct struct {
+  Id          uuid.UUID
+  UnitPrice   float64
 }
 
 type Catalog []Product
@@ -43,11 +48,11 @@ func (c Catalog) Generate(l int) Catalog {
 
 func (c Catalog) IDs(db *gorm.DB) []CatalogOrder {
 	var r []CatalogOrder
-	var catalog Catalog
-	db.Clauses(
-		hints.CommentAfter("select", "controller='catalog',action='IDs',application='acme'"),
-	).Find(&catalog)
-	for _, c := range catalog {
+  var slimproduct []SlimProduct
+  db.Clauses(
+    hints.CommentAfter("select", "controller='catalog',action='Slim-IDs',application='acme'"),
+  ).Model(&Product{}).Find(&slimproduct)
+	for _, c := range slimproduct {
 		r = append(r, CatalogOrder{Id: c.Id, UnitPrice: c.UnitPrice})
 	}
 	return r
