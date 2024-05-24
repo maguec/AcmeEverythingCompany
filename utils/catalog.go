@@ -2,27 +2,30 @@ package utils
 
 import (
 	"log"
+	"time"
+
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/google/uuid"
+	"github.com/schollz/progressbar/v3"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/hints"
-  "github.com/schollz/progressbar/v3"
 )
 
 type Product struct {
-	gorm.Model  `fake:"skip"`
 	Id          uuid.UUID `gorm:"type:uuid"`
 	UnitPrice   float64   `sql:"type:decimal(10,2);" fake:"{price}"`
 	Name        string    `fake:"{productname}"`
 	Description string    `fake:"{productdescription}"`
 	Category    string    `fake:"{productcategory}"`
+  CreatedAt  time.Time
+  UpdatedAt  time.Time
 }
 
 // This is a slim version of the product to improve performance
 type SlimProduct struct {
-  Id          uuid.UUID
-  UnitPrice   float64
+	Id        uuid.UUID
+	UnitPrice float64
 }
 
 type Catalog []Product
@@ -48,10 +51,10 @@ func (c Catalog) Generate(l int) Catalog {
 
 func (c Catalog) IDs(db *gorm.DB) []CatalogOrder {
 	var r []CatalogOrder
-  var slimproduct []SlimProduct
-  db.Clauses(
-    hints.CommentAfter("select", "controller='catalog',action='Slim-IDs',application='acme'"),
-  ).Model(&Product{}).Find(&slimproduct)
+	var slimproduct []SlimProduct
+	db.Clauses(
+		hints.CommentAfter("select", "controller='catalog',action='Slim-IDs',application='acme'"),
+	).Model(&Product{}).Find(&slimproduct)
 	for _, c := range slimproduct {
 		r = append(r, CatalogOrder{Id: c.Id, UnitPrice: c.UnitPrice})
 	}
@@ -61,7 +64,7 @@ func (c Catalog) IDs(db *gorm.DB) []CatalogOrder {
 func (c Catalog) DbLoad(db *gorm.DB) error {
 	var data []Product
 	var err error
-  bar := progressbar.NewOptions(len(c), progressbar.OptionSetDescription("Catalog Loading"))
+	bar := progressbar.NewOptions(len(c), progressbar.OptionSetDescription("Catalog Loading"))
 	db.AutoMigrate(&Product{})
 	for i := 0; i < len(c); i++ {
 		data = append(data, c[i])
@@ -75,7 +78,7 @@ func (c Catalog) DbLoad(db *gorm.DB) error {
 				return err
 			}
 			data = nil
-      bar.Add(100)
+			bar.Add(100)
 		}
 	}
 	if len(data) > 0 {
@@ -87,7 +90,7 @@ func (c Catalog) DbLoad(db *gorm.DB) error {
 		if err != nil {
 			return err
 		}
-    bar.Add(len(data))
+		bar.Add(len(data))
 	}
 	return err
 }

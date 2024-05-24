@@ -20,7 +20,7 @@ func Benchmark(db *gorm.DB, benchmarktype string, loops int) error {
     if benchmarktype == "catalog" {
       catalog.IDs(db)
     } else if benchmarktype == "customer" {
-      customers.IDs(db, false)
+      customers.IDs(db, true)
     }
   
 		catalog.IDs(db)
