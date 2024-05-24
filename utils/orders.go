@@ -11,6 +11,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/hints"
+  "github.com/schollz/progressbar/v3"
 )
 
 type Order struct {
@@ -30,6 +31,7 @@ func writeOrders(
 	wg *sync.WaitGroup,
 	cfg AcmeConfig,
 	txns <-chan Order,
+  bar *progressbar.ProgressBar,
 ) error {
 	var err error
 	var data []Order
@@ -55,6 +57,7 @@ func writeOrders(
 					return err
 				}
 				data = nil
+        bar.Add(100)
 			}
 
 		default:
@@ -68,6 +71,7 @@ func writeOrders(
 					return err
 				}
 				data = nil
+        bar.Add(len(data))
 			}
 			return err
 		}
@@ -105,6 +109,7 @@ func (o Orders) DbLoad(cfg AcmeConfig, orderCount, maxClients int) error {
 			orders = append(orders, ord)
 		}
 	}
+  bar := progressbar.NewOptions(len(orders), progressbar.OptionSetDescription("Orders Loading"))
 	txns := make(chan Order, len(orders))
 	for _, o := range orders {
 		txns <- o
@@ -112,7 +117,7 @@ func (o Orders) DbLoad(cfg AcmeConfig, orderCount, maxClients int) error {
 	wg := new(sync.WaitGroup)
 	for w := 0; w < maxClients; w++ {
 		wg.Add(1)
-		go writeOrders(w, wg, cfg, txns)
+		go writeOrders(w, wg, cfg, txns, bar)
 	}
 	wg.Wait()
 	return err
