@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/hints"
+  "github.com/schollz/progressbar/v3"
 )
 
 type Customer struct {
@@ -15,6 +16,10 @@ type Customer struct {
 	Id         uuid.UUID `gorm:"type:uuid"`
 	FirstName  string    `fake:"{firstname}"`
 	Lastname   string    `fake:"{lastname}"`
+	Email      string    `fake:"{email}"`
+	Company    string    `fake:"{company}"`
+	JobTitle   string    `fake:"{jobtitle}"`
+	Phone      string    `fake:"{phone}"`
 }
 
 type Customers []Customer
@@ -37,9 +42,9 @@ func (c Customers) IDs(db *gorm.DB, pluck bool) []uuid.UUID {
 	var r []uuid.UUID
 	var customers []Customer
 	if pluck {
-    db.Clauses(
-      hints.CommentAfter("select", "controller='customers',action='IDs-pluck',application='acme'"),
-    ).Model(&Customer{}).Pluck("Id", &r)
+		db.Clauses(
+			hints.CommentAfter("select", "controller='customers',action='IDs-pluck',application='acme'"),
+		).Model(&Customer{}).Pluck("Id", &r)
 	} else {
 		db.Clauses(
 			hints.CommentAfter("select", "controller='customers',action='IDs',application='acme'"),
@@ -52,6 +57,7 @@ func (c Customers) IDs(db *gorm.DB, pluck bool) []uuid.UUID {
 }
 
 func (c Customers) DbLoad(db *gorm.DB) error {
+  bar := progressbar.NewOptions(len(c), progressbar.OptionSetDescription("Customer Loading"))
 	var data []Customer
 	var err error
 	db.AutoMigrate(&Customer{})
@@ -68,6 +74,7 @@ func (c Customers) DbLoad(db *gorm.DB) error {
 				return err
 			}
 			data = nil
+      bar.Add(100)
 		}
 	}
 	if len(data) > 0 {
@@ -79,6 +86,7 @@ func (c Customers) DbLoad(db *gorm.DB) error {
 		if err != nil {
 			return err
 		}
+    bar.Add(len(data))
 	}
 	return err
 }

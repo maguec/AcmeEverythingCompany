@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/hints"
+  "github.com/schollz/progressbar/v3"
 )
 
 type Product struct {
@@ -55,6 +56,7 @@ func (c Catalog) IDs(db *gorm.DB) []CatalogOrder {
 func (c Catalog) DbLoad(db *gorm.DB) error {
 	var data []Product
 	var err error
+  bar := progressbar.NewOptions(len(c), progressbar.OptionSetDescription("Catalog Loading"))
 	db.AutoMigrate(&Product{})
 	for i := 0; i < len(c); i++ {
 		data = append(data, c[i])
@@ -68,6 +70,7 @@ func (c Catalog) DbLoad(db *gorm.DB) error {
 				return err
 			}
 			data = nil
+      bar.Add(100)
 		}
 	}
 	if len(data) > 0 {
@@ -79,6 +82,7 @@ func (c Catalog) DbLoad(db *gorm.DB) error {
 		if err != nil {
 			return err
 		}
+    bar.Add(len(data))
 	}
 	return err
 }
