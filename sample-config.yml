@@ -4,3 +4,5 @@ password: NotPostgres
 host: 172.16.0.4
 port: 5432
 dbname: acme
+customercount: 1000
+productcount: 50000

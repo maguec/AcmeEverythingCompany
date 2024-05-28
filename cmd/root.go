@@ -35,10 +35,10 @@ import (
 var cfgFile string
 var debug bool
 var Config = utils.AcmeConfig{
-	CustomerCount: 2000,
-	ProductCount:  10000,
-	OrderCount:    100000,
-	MaxClients:    20,
+//	CustomerCount: 2000,
+//	ProductCount:  10000,
+//	OrderCount:    100000,
+//	MaxClients:    20,
 }
 
 // rootCmd represents the base command when called without any subcommands
@@ -74,6 +74,10 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
+  viper.SetDefault("CustomerCount", 2000)
+  viper.SetDefault("ProductCount", 10000)
+  viper.SetDefault("OrderCount", 100000)
+  viper.SetDefault("MaxClients", 20)
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)

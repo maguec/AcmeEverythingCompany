@@ -20,6 +20,16 @@ var dbseedCmd = &cobra.Command{
 	Long: `Add some initial data to the database
 Including users, organizations, and a product catalog.`,
 	Run: func(cmd *cobra.Command, args []string) {
+
+    if customerCount < 1 {
+      customerCount = Config.CustomerCount
+    }
+    if productCount < 1 {
+      productCount = Config.ProductCount
+    }
+		if debug {
+			fmt.Printf("Creating %d customers and %d products\n", customerCount, productCount)
+		}
 		catalog := utils.Catalog{}
 		catalog = catalog.Generate(productCount)
 		customers := utils.Customers{}
@@ -27,9 +37,6 @@ Including users, organizations, and a product catalog.`,
 		db, err := utils.GetDb(&Config)
 		if err != nil {
 			log.Fatal(err)
-		}
-		if debug {
-			fmt.Printf("Creating and loading %d customers and %d products\n", Config.CustomerCount, Config.ProductCount)
 		}
 		catalog.DbLoad(db)
 		customers.DbLoad(db)
@@ -43,6 +50,6 @@ Including users, organizations, and a product catalog.`,
 
 func init() {
 	rootCmd.AddCommand(dbseedCmd)
-	dbseedCmd.Flags().IntVarP(&customerCount, "customer-count", "c", Config.CustomerCount, "How many customers to add to the database")
-	dbseedCmd.Flags().IntVarP(&productCount, "product-count", "p", Config.ProductCount, "How many products to add to the database")
+  dbseedCmd.Flags().IntVarP(&customerCount, "customer-count", "c", 0, fmt.Sprintf("Override the number of customers to add to the database default: %d", Config.CustomerCount))
+  dbseedCmd.Flags().IntVarP(&productCount, "product-count", "p", 0, fmt.Sprintf("Override the number of products to add to the database default: %d",  Config.ProductCount))
 }
