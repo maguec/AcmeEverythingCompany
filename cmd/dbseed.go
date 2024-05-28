@@ -33,6 +33,11 @@ Including users, organizations, and a product catalog.`,
 		}
 		catalog.DbLoad(db)
 		customers.DbLoad(db)
+    fmt.Println("")
+    if debug {
+    fmt.Printf("\nDatabase seeded with %d customers and %d products\n", customerCount, productCount)
+    }
+
 	},
 }
 
