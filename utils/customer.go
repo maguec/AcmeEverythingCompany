@@ -2,17 +2,17 @@ package utils
 
 import (
 	"log"
+	"time"
 
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/google/uuid"
+	"github.com/schollz/progressbar/v3"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/hints"
-  "github.com/schollz/progressbar/v3"
 )
 
 type Customer struct {
-	gorm.Model `fake:"skip"`
 	Id         uuid.UUID `gorm:"type:uuid"`
 	FirstName  string    `fake:"{firstname}"`
 	Lastname   string    `fake:"{lastname}"`
@@ -20,6 +20,8 @@ type Customer struct {
 	Company    string    `fake:"{company}"`
 	JobTitle   string    `fake:"{jobtitle}"`
 	Phone      string    `fake:"{phone}"`
+  CreatedAt  time.Time
+  UpdatedAt  time.Time
 }
 
 type Customers []Customer
@@ -35,6 +37,14 @@ func (c Customers) Generate(l int) Customers {
 		}
 		r = append(r, p)
 	}
+	return r
+}
+
+func (c Customers) Emails(db *gorm.DB) []string {
+	var r []string
+	db.Clauses(
+		hints.CommentAfter("select", "controller='customers',action='emails',application='acme'"),
+	).Model(&Customer{}).Pluck("Email", &r)
 	return r
 }
 
@@ -57,7 +67,7 @@ func (c Customers) IDs(db *gorm.DB, pluck bool) []uuid.UUID {
 }
 
 func (c Customers) DbLoad(db *gorm.DB) error {
-  bar := progressbar.NewOptions(len(c), progressbar.OptionSetDescription("Customer Loading"))
+	bar := progressbar.NewOptions(len(c), progressbar.OptionSetDescription("Customer Loading"))
 	var data []Customer
 	var err error
 	db.AutoMigrate(&Customer{})
@@ -74,7 +84,7 @@ func (c Customers) DbLoad(db *gorm.DB) error {
 				return err
 			}
 			data = nil
-      bar.Add(100)
+			bar.Add(100)
 		}
 	}
 	if len(data) > 0 {
@@ -86,7 +96,7 @@ func (c Customers) DbLoad(db *gorm.DB) error {
 		if err != nil {
 			return err
 		}
-    bar.Add(len(data))
+		bar.Add(len(data))
 	}
 	return err
 }

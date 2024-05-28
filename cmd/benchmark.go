@@ -21,21 +21,26 @@ var benchmarkCmd = &cobra.Command{
 
 For options that are available in postgres and alloydb.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if benchmarkType == "catalog" || benchmarkType == "customer" {
+		if benchmarkType == "catalog" || benchmarkType == "customer" || benchmarkType == "index" {
 			db, err := utils.GetDb(&Config)
 			if err != nil {
 				log.Fatal(err)
 			}
 
-			utils.Benchmark(db, benchmarkType, benchmarkRuns)
+			if benchmarkType == "index" {
+				utils.IndexBenchmark(db, benchmarkRuns)
+			} else {
+
+				utils.Benchmark(db, benchmarkType, benchmarkRuns)
+			}
 		} else {
-			log.Fatal("Invalid benchmark type must be catalog or product")
+			log.Fatal("Invalid benchmark type must be index, catalog or product")
 		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(benchmarkCmd)
-	benchmarkCmd.Flags().StringVarP(&benchmarkType, "benchmark-type", "t", "catalog", "What type of benchmark to run catlog or customer")
+	benchmarkCmd.Flags().StringVarP(&benchmarkType, "benchmark-type", "t", "index", "What type of benchmark to run catlog or customer")
 	benchmarkCmd.Flags().IntVarP(&benchmarkRuns, "benchmark-runs", "r", 10, "How many times to run the benchmark")
 }
