@@ -4,24 +4,26 @@ import (
 	"fmt"
 	"log"
 	"sync"
+	"time"
 
 	"math/rand"
 
+	"github.com/brianvoe/gofakeit/v7"
 	"github.com/google/uuid"
-	"gorm.io/gorm"
+	"github.com/schollz/progressbar/v3"
 	"gorm.io/gorm/clause"
 	"gorm.io/hints"
-  "github.com/schollz/progressbar/v3"
 )
 
 type Order struct {
-	gorm.Model `fake:"skip"`
 	Id         uuid.UUID `gorm:"type:uuid"`
 	OrderId    uuid.UUID `gorm:"type:uuid"`
 	ProductId  uuid.UUID `gorm:"type:uuid"`
 	CustomerId uuid.UUID `gorm:"type:uuid"`
 	Units      int
 	TotalCost  float64 `sql:"type:decimal(10,2);"`
+	CreatedAt   time.Time 
+	UpdatedAt   time.Time 
 }
 
 type Orders []Order
@@ -98,6 +100,7 @@ func (o Orders) DbLoad(cfg AcmeConfig, orderCount, maxClients int) error {
 			z := productUUIDS[rand.Intn(len(productUUIDS))]
 			units := rand.Intn(50) + 1
 			o_uuid := uuid.New()
+      t := gofakeit.DateRange(time.Now().AddDate(0, 0, -180), time.Now())
 			ord := Order{
 				OrderId:    myuuid,
 				Id:         o_uuid,
@@ -105,6 +108,8 @@ func (o Orders) DbLoad(cfg AcmeConfig, orderCount, maxClients int) error {
 				ProductId:  z.Id,
 				Units:      units,
 				TotalCost:  z.UnitPrice * float64(units),
+        CreatedAt:  t,
+        UpdatedAt:  t,
 			}
 			orders = append(orders, ord)
 		}
@@ -120,5 +125,6 @@ func (o Orders) DbLoad(cfg AcmeConfig, orderCount, maxClients int) error {
 		go writeOrders(w, wg, cfg, txns, bar)
 	}
 	wg.Wait()
+  fmt.Println("") // blank line for readability
 	return err
 }

@@ -13,15 +13,15 @@ import (
 )
 
 type Customer struct {
-	Id         uuid.UUID `gorm:"type:uuid"`
-	FirstName  string    `fake:"{firstname}"`
-	Lastname   string    `fake:"{lastname}"`
-	Email      string    `fake:"{email}"`
-	Company    string    `fake:"{company}"`
-	JobTitle   string    `fake:"{jobtitle}"`
-	Phone      string    `fake:"{phone}"`
-  CreatedAt  time.Time
-  UpdatedAt  time.Time
+	Id        uuid.UUID `gorm:"type:uuid"`
+	FirstName string    `fake:"{firstname}"`
+	Lastname  string    `fake:"{lastname}"`
+	Email     string    `fake:"{email}"`
+	Company   string    `fake:"{company}"`
+	JobTitle  string    `fake:"{jobtitle}"`
+	Phone     string    `fake:"{phone}"`
+	CreatedAt time.Time `fake:"{daterange:2023-01-01,2023-12-31,2006-01-02}" format:"yyyy-MM-dd"`
+	UpdatedAt time.Time `fake:"{daterange:2024-01-01,2024-12-31,2006-01-02}" format:"yyyy-MM-dd"`
 }
 
 type Customers []Customer

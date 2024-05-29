@@ -18,8 +18,8 @@ type Product struct {
 	Name        string    `fake:"{productname}"`
 	Description string    `fake:"{productdescription}"`
 	Category    string    `fake:"{productcategory}"`
-  CreatedAt  time.Time
-  UpdatedAt  time.Time
+	CreatedAt   time.Time `fake:"{daterange:2023-01-01,2023-12-31,2006-01-02}" format:"yyyy-MM-dd"`
+	UpdatedAt   time.Time `fake:"{daterange:2024-01-01,2024-12-31,2006-01-02}" format:"yyyy-MM-dd"`
 }
 
 // This is a slim version of the product to improve performance
