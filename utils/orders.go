@@ -93,6 +93,7 @@ func (o Orders) DbLoad(cfg AcmeConfig, orderCount, maxClients int) error {
 	catalog := Catalog{}
 	productUUIDS := catalog.IDs(db)
 	orders := []Order{}
+  orderbar := progressbar.NewOptions(orderCount, progressbar.OptionSetDescription("Generating Orders"))
 	for i := 0; i < orderCount; i++ {
 		myuuid := uuid.New()
 		customerId := customerUUIDS[rand.Intn(len(customerUUIDS))]
@@ -113,6 +114,7 @@ func (o Orders) DbLoad(cfg AcmeConfig, orderCount, maxClients int) error {
 			}
 			orders = append(orders, ord)
 		}
+    orderbar.Add(1)
 	}
   bar := progressbar.NewOptions(len(orders), progressbar.OptionSetDescription("Orders Loading"))
 	txns := make(chan Order, len(orders))
