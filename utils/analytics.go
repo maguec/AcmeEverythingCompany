@@ -28,9 +28,21 @@ bar := progressbar.NewOptions(len(queries), progressbar.OptionSetDescription("An
     db.Exec(v)
     timings[k] = time.Since(start)
   }
-  fmt.Println("") //empty line
 
-  for k, v := range timings {
-    fmt.Printf("%-25s: %s\n", k, v)
+  keys := []string{}
+  for k := range timings {
+    keys = append(keys, k)
   }
+
+  fmt.Println("") //empty line
+  fmt.Println("-------------------------------------")
+
+  total := time.Duration(0)
+  for _, k := range keys {
+    v := timings[k]
+    fmt.Printf("%-25s: %-5d (ms)\n", k, v.Milliseconds())
+    total += v
+  }
+  fmt.Println("-------------------------------------")
+  fmt.Printf("%-25s: %-5d (ms)\n", "TOTAL", total.Milliseconds())
 }
