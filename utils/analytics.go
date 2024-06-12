@@ -3,6 +3,7 @@ package utils
 import (
 	"time"
   "fmt"
+  "sort"
 
 	"gorm.io/gorm"
   "github.com/schollz/progressbar/v3"
@@ -33,6 +34,8 @@ bar := progressbar.NewOptions(len(queries), progressbar.OptionSetDescription("An
   for k := range timings {
     keys = append(keys, k)
   }
+
+  sort.Strings(keys)
 
   fmt.Println("") //empty line
   fmt.Println("-------------------------------------")
