@@ -5,6 +5,7 @@ import (
   "fmt"
 
 	"gorm.io/gorm"
+  "github.com/schollz/progressbar/v3"
 )
 
 
@@ -18,11 +19,16 @@ func Analytics(db *gorm.DB) {
   queries["Top10_products"] = "SELECT product_id, SUM(total_cost) AS total_revenue FROM orders GROUP BY product_id ORDER BY total_revenue ASC LIMIT 10"
   queries["Average_order_size"] = "SELECT AVG(order_total) AS avg_order_total FROM ( SELECT order_id, SUM(total_cost) AS order_total FROM orders GROUP BY order_id) AS order_totals"
   queries["Average_units_per_order"] = "SELECT AVG(order_total) AS avg_order_total FROM ( SELECT order_id, SUM(total_cost) AS order_total FROM orders GROUP BY order_id) AS order_totals"
+
+bar := progressbar.NewOptions(len(queries), progressbar.OptionSetDescription("Analytics Running"))
+
   for k, v := range queries {
+    bar.Add(1)
     start := time.Now()
     db.Exec(v)
     timings[k] = time.Since(start)
   }
+  fmt.Println("") //empty line
 
   for k, v := range timings {
     fmt.Printf("%-25s: %s\n", k, v)
